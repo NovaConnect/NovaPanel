@@ -1,0 +1,17 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using NovaPanel.Model
+
+<div id="bottom" class="white-background bottom-navbar" style="z-index:9998">
+    @foreach (var nav in ApplicationRuntimes.NavItems)
+    {
+        @if (nav.Mobile)
+        {
+            <NavLink class="navbar-item" href="@nav.Jump">
+                <div class="icon">
+                    <span class="@((MarkupString)nav.Icon)"/>
+                </div>
+            </NavLink>
+        }
+    }
+</div>

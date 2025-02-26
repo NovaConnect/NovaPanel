@@ -1,0 +1,642 @@
+﻿@page "/explorer"
+@page "/explorer/{path}"
+
+@using NovaPanel.Model.ServerMonitorM
+@using NovaPanel.Model
+@using System.IO
+@using System.Text
+@using System.Diagnostics
+@using System.IO.Compression
+
+<PageTitle>Explorer</PageTitle>
+
+<link href="style/list.css" rel="stylesheet" />
+
+<script>
+    document.addEventListener('contextmenu', event => event.preventDefault());
+</script>
+
+<div class="list-container">
+    <div class="sticky-top">
+        <div class="a-bar">
+            <Button Text="<span style='font-size:18' class='fas fa-angle-double-left'/>" Click="NavigateUp" Style="margin-right:10px;" />
+            <Button Text="<span style='font-size:18' class='fas fa-sync'/>" Click="()=>LoadFiles(currentPath)" Style="margin-right:10px;" />
+            <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+            type="text"
+            @bind="currentPath"
+            @onkeypress="HandleAddressBarEnter" />
+        </div>
+    </div>
+
+    <div class="main-content">
+        @if (currentPath.ToLower() == "home")
+        {
+            @foreach (var disk in DriveUsage.GetAllDiskInfo())
+            {
+                <div class="col-md-3" style="margin:10px">
+                    <div class="card">
+                        <div @onclick="() => LoadFiles(disk.DriveLetter)" class="card-body">
+                            <h5 class="card-title">@disk.Name - @disk.DriveLetter</h5>
+                            <p class="card-text">占用率: @disk.UsagePercentage.ToString("0.00")%</p>
+                            <p class="card-text">总大小: @RamUsage.FormatSize(disk.TotalSize)</p>
+                            <p class="card-text">可用大小: @RamUsage.FormatSize(disk.AvailableSize)</p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <ContextMenuTrigger MenuId="DirContextMenu">
+                <div class="f-list">
+                    <table class="list-container">
+                        <thead>
+                            <tr>
+                                <th @onclick='() => SortBy("Name")'>文件名</th>
+                                <th @onclick='() => SortBy("Size")'>大小</th>
+                                <th @onclick='() => SortBy("CreateTime")'>创建时间</th>
+                                <th @onclick='() => SortBy("LastWriteTime")'>上次修改时间</th>
+                                <th @onclick='() => SortBy("FileType")'>类型</th>
+                                <th @onclick='() => SortBy("Permissions")'>权限</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @if (currentFiles != null)
+                            {
+                                @foreach (var file in currentFiles)
+                                {
+                                    if (File.Exists(file.FullName) || Directory.Exists(file.FullName))
+                                    {
+                                        <tr>
+                                            <td @onclick="() => OpenItem(file)" @onmousedown='() => {contextMenuTargetFile = file;Console.WriteLine($"Select: {file.Name}");}'>
+                                                @if (file.FileType == FileItemType.File)
+                                                {
+                                                    <ContextMenuTrigger MenuId="FileContextMenu">
+                                                        @file.Name
+                                                    </ContextMenuTrigger>
+                                                }
+                                                else
+                                                    @file.Name
+
+                                            </td>
+                                            <td style="text-align:center">@FileFuns.FormatSize(file.Size)</td>
+                                            <td style="text-align:center">@file.CreateTime</td>
+                                            <td style="text-align:center">@file.LastWriteTime</td>
+                                            <td style="text-align:center">@file.FileType.ToString()</td>
+                                            <td style="text-align:center">@file.Permissions</td>
+                                        </tr>
+
+                                    }
+                                }
+                            }
+
+                        </tbody>
+
+                    </table>
+                </div>
+            </ContextMenuTrigger>
+        }
+    </div>
+</div>
+
+<WebNotepad Show="showModal" FileFullName="@modalFullName" OnClose="CloseModal" />
+
+<ContextMenu Id="FileContextMenu">
+    <Item OnClick="@OpenFile">打开</Item>
+    <Item OnClick="@CutFile">剪切</Item>
+    <Item OnClick="@ToZip">压缩</Item>
+    <Item OnClick="@CopyFile">拷贝</Item>
+    <Item OnClick="@RemoveFile">删除</Item>
+    <Item OnClick="@DownloadFile">下载</Item>
+    <Item OnClick="@RenameFile">重命名</Item>
+</ContextMenu>
+
+<ContextMenu Id="DirContextMenu">
+    <Item OnClick="@ToZip">压缩</Item>
+    @if (copiedFilePath != null)
+    {
+        <Item OnClick="@PasteFile">粘贴</Item>
+        <Seperator />
+    }
+    <Item OnClick="@CreatDir">新建文件夹</Item>
+    <Item>
+        新建文件
+        <SubMenu>
+            <Item OnClick='()=>CreateNewFile("txt")'>.TXT 文本文件</Item>
+            <Item OnClick='()=>CreateNewFile("json")'>.JSON 配置文件</Item>
+            <Item OnClick='()=>CreateNewFile("html")'>.HTML 页面文件</Item>
+            <Item OnClick='()=>CreateNewFile("bat")'>.BAT 批处理文件</Item>
+            <Item OnClick='()=>CreateNewFile("ps1")'>.PS1 PS脚本文件</Item>
+        </SubMenu>
+    </Item>
+    <Item>
+        新建开发项目
+        <SubMenu>
+            <Item OnClick='()=>CreateNewFile("txt")'>.NET C# 控制台项目</Item>
+            <Item OnClick='()=>CreateNewFile("txt")'>.NET VB 控制台项目</Item>
+            <Item OnClick='()=>CreateNewFile("json")'>C++ 控制台项目</Item>
+            <Item OnClick='()=>CreateNewFile("html")'>HTML 网站项目</Item>
+        </SubMenu>
+    </Item>
+</ContextMenu>
+
+
+<script>
+    function downloadFile(fileName, mimeType, byteArray) {
+    const blob = new Blob([byteArray], { type: mimeType });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = fileName;
+    link.click();
+    URL.revokeObjectURL(link.href);
+    }
+</script>
+
+@code {
+    [Parameter]
+    public string ?path { get; set; } = "home";
+
+    #region ContextMenu
+    private FileItem contextMenuTargetFile = null;
+
+    private string copiedFilePath = "";
+    private bool isCutOperation = false;
+
+    private async void OpenFile() {
+        if (contextMenuTargetFile != null)
+        {
+            await OpenItem(contextMenuTargetFile);
+        }
+    }
+
+    private async void CreatDir()
+    {
+        string newDirName = await JSRuntime.InvokeAsync<string>("swal", new
+        {
+            title = "新建文件夹",
+            text = "输入文件夹名称:",
+            content = "input",
+            buttons = new { cancel = "取消", confirm = "确定" }
+        });
+
+        if (!string.IsNullOrEmpty(newDirName))
+        {
+            string newDirPath = Path.Combine(currentPath, newDirName);
+            try
+            {
+                Directory.CreateDirectory(newDirPath);
+                LoadFiles(currentPath);
+            }
+            catch (Exception ex)
+            {
+                await ShowError($"创建文件夹失败: {ex.Message}");
+            }
+        }
+    }
+
+    private void CutFile()
+    {
+        if (contextMenuTargetFile != null)
+        {
+            copiedFilePath = contextMenuTargetFile.FullName;
+            isCutOperation = true;
+        }
+    }
+
+    private async Task DownloadFile()
+    {
+        if (contextMenuTargetFile != null)
+        {
+            try
+            {
+                byte[] fileBytes = await File.ReadAllBytesAsync(contextMenuTargetFile.FullName);
+
+                string fileName = Path.GetFileName(contextMenuTargetFile.FullName);
+                string mimeType = GetMimeType(Path.GetExtension(contextMenuTargetFile.FullName));
+
+                await JSRuntime.InvokeVoidAsync("downloadFile", fileName, mimeType, fileBytes);
+            }
+            catch (Exception ex)
+            {
+                await ShowError($"下载文件失败: {ex.Message}");
+            }
+        }
+    }
+
+    private string GetMimeType(string fileExtension)
+    {
+        return fileExtension.ToLower() switch
+        {
+            ".txt" => "text/plain",
+            ".pdf" => "application/pdf",
+            ".jpg" => "image/jpeg",
+            ".png" => "image/png",
+            ".zip" => "application/zip",
+            _ => "application/octet-stream"
+        };
+    }
+
+    private void CopyFile()
+    {
+        if (contextMenuTargetFile != null)
+        {
+            copiedFilePath = contextMenuTargetFile.FullName;
+            isCutOperation = false;
+        }
+    }
+
+    private void RemoveFile(){
+        if (contextMenuTargetFile != null)
+        {
+            try
+            {
+                if (contextMenuTargetFile.FileType == FileItemType.Directory)
+                {
+                    Directory.Delete(contextMenuTargetFile.FullName, true);
+                }
+                else
+                {
+                    File.Delete(contextMenuTargetFile.FullName);
+                }
+                LoadFiles(currentPath);
+            }
+            catch (Exception ex)
+            {
+                ShowError($"删除失败: {ex.Message}");
+            }
+        }
+    }
+
+    private async void RenameFile()
+    {
+        if (contextMenuTargetFile != null)
+        {
+            string newName = await JSRuntime.InvokeAsync<string>("swal", new
+            {
+                title = "重命名文件",
+                text = "输入新的文件名:",
+                content = "input",
+                buttons = new { cancel = "取消", confirm = "确定" }
+            });
+
+            if (!string.IsNullOrEmpty(newName))
+            {
+                string newFullName = Path.Combine(Path.GetDirectoryName(contextMenuTargetFile.FullName), newName);
+                try
+                {
+                    File.Move(contextMenuTargetFile.FullName, newFullName);
+                    contextMenuTargetFile.FullName = newFullName;
+                    contextMenuTargetFile.Name = newName;
+                    LoadFiles(currentPath);
+                }
+                catch (Exception ex)
+                {
+                    await ShowError($"重命名失败: {ex.Message}");
+                }
+            }
+        }
+    }
+
+    private void ToZip(){
+        if (contextMenuTargetFile != null)
+        {
+            string zipPath = Path.Combine(currentPath, $"{contextMenuTargetFile.Name}.zip");
+            if (contextMenuTargetFile.FileType == FileItemType.Directory)
+            {
+                ZipFile.CreateFromDirectory(contextMenuTargetFile.FullName, zipPath);
+            }
+            else
+            {
+                using (var archive = ZipFile.Open(zipPath, ZipArchiveMode.Create))
+                {
+                    archive.CreateEntryFromFile(contextMenuTargetFile.FullName, contextMenuTargetFile.Name);
+                }
+            }
+            LoadFiles(currentPath);
+        }
+    }
+
+    private void PasteFile()
+    {
+        if (!string.IsNullOrEmpty(copiedFilePath))
+        {
+            string destinationPath = Path.Combine(currentPath, Path.GetFileName(copiedFilePath));
+            if (isCutOperation)
+            {
+                File.Move(copiedFilePath, destinationPath); 
+            }
+            else
+            {
+                File.Copy(copiedFilePath, destinationPath);
+            }
+            copiedFilePath = null;
+            LoadFiles(currentPath);
+        }
+    }
+
+    private void CreateNewFile(string NewFileType)
+    {
+        string newFilePath = Path.Combine(currentPath, $"NewFile.{NewFileType}");
+        File.WriteAllText(newFilePath, ""); // 创建空文件
+        LoadFiles(currentPath); // 刷新文件列表
+    }
+
+    private void CreateNewProject(string NewProjectType)
+    {
+        string projectPath = Path.Combine(currentPath, $"NewProject");
+        Directory.CreateDirectory(projectPath); // 创建项目文件夹
+        switch (NewProjectType)
+        {
+            case "cs":
+                File.WriteAllText(Path.Combine(projectPath, "Program.cs"), "using System;\n\nclass Program\n{\n    static void Main()\n    {\n        Console.WriteLine(\"Hello, World!\");\n    }\n}");
+                break;
+            case "cpp":
+                File.WriteAllText(Path.Combine(projectPath, "main.cpp"), "#include <iostream>\n\nint main()\n{\n    std::cout << \"Hello, World!\" << std::endl;\n    return 0;\n}");
+                break;
+            case "html":
+                File.WriteAllText(Path.Combine(projectPath, "index.html"), "<!DOCTYPE html>\n<html>\n<head>\n    <title>New Project</title>\n</head>\n<body>\n    <h1>Hello, World!</h1>\n</body>\n</html>");
+                break;
+        }
+        LoadFiles(currentPath); // 刷新文件列表
+    }
+    #endregion
+
+    private List<FileItem> currentFiles = new List<FileItem> { };
+    private string currentPath = string.Empty;
+
+    private bool showModal = false;
+    private string modalFullName = string.Empty;
+
+    private string sortByField = "Name";
+    private bool isAscending = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (path == null)
+            path = "home";
+
+        await LoadFiles(path.Replace("$","\\"));
+    }
+
+    private void SortBy(string field)
+    {
+        if (sortByField == field)
+        {
+            isAscending = !isAscending;
+        }
+        else
+        {
+            sortByField = field;
+            isAscending = true;
+        }
+
+        switch (sortByField)
+        {
+            case "Name":
+                currentFiles = isAscending
+                    ? currentFiles.OrderBy(f => f.Name).ToList()
+                    : currentFiles.OrderByDescending(f => f.Name).ToList();
+                break;
+            case "Size":
+                currentFiles = isAscending
+                    ? currentFiles.OrderBy(f => f.Size).ToList()
+                    : currentFiles.OrderByDescending(f => f.Size).ToList();
+                break;
+            case "CreateTime":
+                currentFiles = isAscending
+                    ? currentFiles.OrderBy(f => f.CreateTime).ToList()
+                    : currentFiles.OrderByDescending(f => f.CreateTime).ToList();
+                break;
+            case "LastWriteTime":
+                currentFiles = isAscending
+                    ? currentFiles.OrderBy(f => f.LastWriteTime).ToList()
+                    : currentFiles.OrderByDescending(f => f.LastWriteTime).ToList();
+                break;
+            case "FileType":
+                currentFiles = isAscending
+                    ? currentFiles.OrderBy(f => f.FileType).ToList()
+                    : currentFiles.OrderByDescending(f => f.FileType).ToList();
+                break;
+            case "Permissions":
+                currentFiles = isAscending
+                    ? currentFiles.OrderBy(f => f.Permissions).ToList()
+                    : currentFiles.OrderByDescending(f => f.Permissions).ToList();
+                break;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task LoadFiles(string path = "home")
+    {
+        Console.WriteLine($"Load:{path}");
+        if (path.ToLower() == "home")
+        {
+            currentPath = "home";
+        }
+        else
+        {
+            try
+            {
+                if (Directory.Exists(path))
+                {
+                    currentFiles = new List<FileItem>();
+
+                    // 加载子目录
+                    foreach (var dir in Directory.GetDirectories(path))
+                    {
+                        try
+                        {
+                            var dirInfo = new DirectoryInfo(dir);
+                            var fileItem = new FileItem
+                            {
+                                Name = dirInfo.Name,
+                                FullName = dirInfo.FullName,
+                                FileType = FileItemType.Directory,
+                                Size = 2077576874243179872,
+                                CreateTime = dirInfo.CreationTime.ToString("yyyy-MM-dd HH:mm"),
+                                LastWriteTime = dirInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm"),
+                                Permissions = FileFuns.GetFilePermissions(dirInfo.FullName)
+                            };
+                            currentFiles.Add(fileItem);
+                        }
+                        catch (UnauthorizedAccessException) { }
+                    }
+
+                    // 加载文件
+                    foreach (var file in Directory.GetFiles(path))
+                    {
+                        try
+                        {
+                            var fileInfo = new FileInfo(file);
+                            var fileItem = new FileItem
+                            {
+                                Name = fileInfo.Name,
+                                FullName = fileInfo.FullName,
+                                FileType = FileItemType.File,
+                                Size = (ulong)fileInfo.Length,
+                                CreateTime = fileInfo.CreationTime.ToString("yyyy-MM-dd HH:mm"),
+                                LastWriteTime = fileInfo.LastWriteTime.ToString("yyyy-MM-dd HH:mm"),
+                                Permissions = FileFuns.GetFilePermissions(fileInfo.FullName)
+                            };
+                            currentFiles.Add(fileItem);
+                        }
+                        catch (UnauthorizedAccessException) { }
+                    }
+
+                    // 更新当前路径
+                    currentPath = path;
+                }
+                else
+                {
+                    currentFiles = new List<FileItem>();
+                    currentPath = "home";
+                    await ShowError($"路径不存在\n{path}");
+                }
+            }
+            catch (UnauthorizedAccessException) { }
+            catch (Exception ex)
+            {
+                await ShowError($"无法访问路径: {path}。错误: {ex.Message}");
+            }
+        }
+        StateHasChanged();
+    }
+
+    private async Task OpenItem(FileItem file)
+    {
+        if (file.FileType == FileItemType.Directory)
+        {
+            currentPath = file.FullName;
+            await LoadFiles(currentPath);
+        }
+        else
+        {
+            switch (Path.GetExtension(file.Name).ToLower())
+            {
+                case ".exe":
+                    try
+                    {
+                        bool confirm = await JSRuntime.InvokeAsync<bool>("swal", new
+                        {
+                            title = "安全警告",
+                            text = $"是否启动可能包含危险代码的二进制程序\n{file.Name}",
+                            icon = "warning",
+                            buttons = new { cancel = "取消", confirm = "继续" },
+                            dangerMode = true
+                        });
+
+                        if (!confirm) return;
+
+                        Process.Start($"explorer", file.FullName);
+                    }
+                    catch(Exception ex) {
+                        await ShowError(ex.Message);
+                    }
+                    break;
+                case ".mp3":
+                case ".mp4":
+                case ".jpg":
+                case ".jpeg":
+                case ".png":
+                case ".gif":
+                case ".webm":
+                case ".mkv":
+                case ".ogg":
+                    ShowMediaFile(file);
+                    break;
+                default:
+                    if (FileFuns.IsTextFile(file.FullName))
+                    {
+                        modalFullName = file.FullName;
+                        showModal = true;
+                    }else{
+                        try
+                        {
+                            bool confirm = await JSRuntime.InvokeAsync<bool>("swal", new
+                            {
+                                title = "错误",
+                                text = $"可能是二进制文件，是否强行以文本方式打开.",
+                                icon = "warning",
+                                buttons = new { cancel = "取消", confirm = "确认" },
+                                dangerMode = true
+                            });
+                            if (!confirm) return;
+
+                            modalFullName = file.FullName;
+                            showModal = true;
+                        }
+                        catch { }
+                    }
+                    
+                    break;
+            }
+            
+        }
+        StateHasChanged();
+    }
+
+    private async Task ShowMediaFile(FileItem file)
+    {
+        string extension = Path.GetExtension(file.Name).ToLower();
+        string mediaTag = "";
+
+        byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(file.FullName);
+        string base64Data = Convert.ToBase64String(fileBytes);
+
+        if (extension == ".mp3" || extension == ".ogg")
+        {
+            mediaTag = $"<audio controls><source src='data:audio/{extension.Replace(".", "")};base64,{base64Data}' type='audio/{extension.Replace(".", "")}'></audio>";
+        }
+        else if (extension == ".mp4" || extension == ".webm" || extension == ".mkv")
+        {
+            mediaTag = $"<video style='filter: invert(0)' controls><source src='data:video/{extension.Replace(".", "")};base64,{base64Data}' type='video/{extension.Replace(".", "")}'></video>";
+        }
+        else if (extension == ".jpg" || extension == ".jpeg" || extension == ".png" || extension == ".gif")
+        {
+            mediaTag = $"<img style='filter: invert(0)' src='data:image/{extension.Replace(".", "")};base64,{base64Data}' style='max-width: 100%; height: auto;' />";
+        }
+
+        await JSRuntime.InvokeVoidAsync("swal", new
+        {
+            title = file.Name,
+            content = new { element = "div", attributes = new { innerHTML = mediaTag } },
+            buttons = new { confirm = "关闭" }
+        });
+    }
+
+    private void CloseModal()
+    {
+        showModal = false;
+        modalFullName = string.Empty;
+        StateHasChanged();
+    }
+
+    private async Task ShowError(string message)
+        => await JSRuntime.InvokeVoidAsync("swal", "错误", message, "error");
+
+    private async Task NavigateUp()
+    {
+        if (currentPath == "home" || Directory.GetDirectoryRoot(currentPath) == currentPath)
+        {
+            currentPath = "home";
+            await LoadFiles(currentPath);
+        }
+        else
+        {
+            var parentDirectory = Directory.GetParent(currentPath);
+            if (parentDirectory != null)
+            {
+                currentPath = parentDirectory.FullName;
+                await LoadFiles(currentPath);
+            }
+        }
+    }
+
+    private async Task HandleAddressBarEnter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") await LoadFiles(currentPath);
+    }
+}

@@ -1,0 +1,37 @@
+﻿@inherits LayoutComponentBase
+@using NovaPanel.Model;
+@using Microsoft.AspNetCore.Components.Web
+
+<div id="main" style="--sidebar-width:16rem;--sidebar-width-icon:3rem;overflow: hidden;" class="group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar">
+    @if (HasValidSessionCookie){
+        <Sidebar />
+        <BottomBar />
+    }
+    <main style="margin:10px;padding:6px;position: relative; width: 100%;overflow: hidden;">
+        <div id="MainInner" style="overflow: hidden;margin-bottom: 70px;">
+            @Body
+        </div>
+
+    </main>
+
+</div>
+
+@code{
+    private bool HasValidSessionCookie { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender){
+            var token = await JSRuntime.InvokeAsync<string>("csc");
+            if (token != null && token.Length >= 10)
+            {
+                if (AuthModels.Auth(token))
+                {
+                    HasValidSessionCookie = true;
+                    StateHasChanged();
+                }
+            }
+        }
+
+    }
+}

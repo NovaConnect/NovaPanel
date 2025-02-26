@@ -1,0 +1,81 @@
+[
+  {
+    "name": "仪表盘",
+    "icon": "font22 fas fa-home",
+    "jump": "/",
+    "tooltip": "Dashboard",
+    "mobile": true
+  },
+  {
+    "name": "服务器监控",
+    "icon": "font22 fas fa-server",
+    "jump": "/server-monitor",
+    "tooltip": "Server Monitor",
+    "mobile": true
+  },
+  {
+    "name": "资源管理器",
+    "icon": "font22 fas fa-file-alt",
+    "jump": "/explorer",
+    "tooltip": "Explorer",
+    "mobile": true
+  },
+  {
+    "name": "任务管理器",
+    "icon": "font22 fas fa-vote-yea",
+    "jump": "/taskmgr",
+    "tooltip": "Taskmgr",
+    "mobile": true
+  },
+  {
+    "name": "计划任务",
+    "icon": "font22 fas fa-tasks",
+    "jump": "/tasks",
+    "tooltip": "Schedule tasks"
+  },
+  {
+    "name": "用户管理",
+    "icon": "font22 fas fa-users",
+    "jump": "/user-management",
+    "tooltip": "User Management",
+    "mobile": true
+  },
+  {
+    "name": "日志查看",
+    "icon": "font22 fas fa-clipboard-list",
+    "jump": "/logs",
+    "tooltip": "Logs"
+  },
+  {
+    "name": "设置",
+    "icon": "font22 fas fa-cog",
+    "jump": "{ITEMS}",
+    "tooltip": "Settings",
+    "items": [
+      {
+        "name": "应用设置",
+        "icon": "font22 fas fa-wrench",
+        "jump": "/settings/app",
+        "tooltip": "App Settings"
+      },
+      {
+        "name": "安全设置",
+        "icon": "font22 fas fa-shield-virus",
+        "jump": "/settings/security",
+        "tooltip": "Security Settings"
+      },
+      {
+        "name": "网络设置",
+        "icon": "font22 fas fa-network-wired",
+        "jump": "/settings/network",
+        "tooltip": "Network Settings"
+      }
+    ]
+  },
+  {
+    "name": "关于",
+    "icon": "font22 fas fa-code-branch",
+    "jump": "/help",
+    "tooltip": "About"
+  }
+]

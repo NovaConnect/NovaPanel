@@ -1,0 +1,58 @@
+﻿<div tag="mainalert">
+	<div data-state="open" class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" style="pointer-events: auto;" data-aria-hidden="true" aria-hidden="true"></div>
+	<div role="alertdialog" id="radix-:rb:" aria-describedby="radix-:rd:" aria-labelledby="radix-:rc:" data-state="open"
+	class="fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg"
+	tabindex="-1" style="pointer-events: auto;">
+		<div class="flex flex-col space-y-2 text-center sm:text-left">
+			<h2 id="radix-:rc:" class="text-lg font-semibold">
+				@Title
+			</h2>
+
+			<p id="radix-:rd:" class="text-sm text-muted-foreground">
+				@((MarkupString)Content)
+			</p>
+		</div>
+		<div class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+			@if(UseCancelBtn){
+				<button @onclick="OnClick" type="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 mt-2 sm:mt-0">
+					@CancelBtnText
+				</button>
+			}
+
+			<button @onclick="OkBtn" type="button" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+				@OkBtnText
+			</button>
+		</div>
+	</div>
+</div>
+<script>
+	function HideAlert(){
+		const elements = document.querySelectorAll('[tag="mainalert"]');
+		elements.forEach(element => {
+			element.style.display = 'none';
+		});
+	}
+</script>
+@code {
+	[Parameter]
+	public string? Title { get; set; } = "Title";
+
+	[Parameter]
+	public string? Content { get; set; } = "Content";
+
+	[Parameter]
+	public string? CancelBtnText { get; set; } = "Cancel";
+
+	[Parameter]
+	public string? OkBtnText { get; set; } = "OK";
+
+	[Parameter]
+	public bool UseCancelBtn { get; set; } = false;
+
+	[Parameter]
+	public EventCallback OkBtn { get; set; }
+
+	private void OnClick(){
+		JSRuntime.InvokeVoidAsync("HideAlert");
+	}
+}

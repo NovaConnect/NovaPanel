@@ -1,0 +1,8 @@
+{
+  "domain": [
+    "localhost"
+  ],
+  "main": "main",
+  "title": "NovaPanel",
+  "theme": "light"
+}

@@ -1,0 +1,88 @@
+﻿@using NovaPanel.Model;
+@inject NavigationManager NavigationManager
+
+<Router AppAssembly="@typeof(App).Assembly">
+    <Found Context="routeData">
+        @if (HasValidSessionCookie || IsAllowedRoute())
+        {
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        }
+        else
+        {
+            <div style="text-align: center; margin-top: 50px;">
+                <h3>禁止访问</h3>
+                <p>您没有权限访问此页面，请先登录</p>
+            </div>
+        }
+    </Found>
+    <NotFound>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #f7f7f7;
+            }
+
+            .error-container {
+                text-align: center;
+            }
+
+                .error-container h1 {
+                    color: #333;
+                }
+
+                .error-container p {
+                    color: #666;
+                }
+        </style>
+        <div class="error-container">
+            <h1 style="font-size:36px;">404</h1>
+            <p>This page could not be found.</p><br>
+            <a href="/" class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2" onclick="returnHome()">
+                Return to Home
+            </a>
+        </div>
+    </NotFound>
+</Router>
+
+
+@code {
+    private bool HasValidSessionCookie { get; set; }
+
+    private bool IsAllowedRoute()
+    {
+        var currentRoute = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        var result = (currentRoute == $"a/{ApplicationRuntimes.configModel.Main}");
+
+        return result;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !HasValidSessionCookie)
+        {
+            var token = await JSRuntime.InvokeAsync<string>("csc");
+            if (token != null && token.Length >= 10)
+            {
+                if (AuthModels.Auth(token))
+                {
+                    await JSRuntime.InvokeVoidAsync("console.log", "success");
+                    HasValidSessionCookie = true;
+                    StateHasChanged();
+                }
+                else
+                {
+                    await JSRuntime.InvokeVoidAsync("console.log", "fail");
+                    await JSRuntime.InvokeVoidAsync("dsc");
+                }
+            }
+        }
+
+    }
+
+}

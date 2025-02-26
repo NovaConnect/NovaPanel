@@ -1,0 +1,264 @@
+* {
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+@font-face {
+    font-family: 'MapleMono';
+    src: url('fonts/MapleMoni.ttf') format('truetype');
+}
+
+.MonoFont {
+    font-family: 'MapleMono';
+}
+
+.font22{
+    width:21px;
+    height:21px;
+    font-size:21px;
+}
+
+.invert {
+    filter: invert(100%);
+}
+
+body {
+    transition: background-color 0.3s, color 0.3s;
+}
+
+svg, span, img {
+    transition: fill 0.3s, color 0.3s, filter 0.3s;
+}
+
+.invert-mode {
+    background-color: #121212;
+    color: #d0d0d0;
+}
+
+    .invert-mode .swal-title {
+        color: rgb(255 255 255 / 65%);
+    }
+
+    .invert-mode swal-title, .invert-mode .swal-text {
+        color: rgb(255 255 255 / 65%);
+    }
+    .invert-mode .swal-modal {
+        background-color: #333333;
+    }
+    .invert-mode .swal-button {
+        background-color: #6ca2bb;
+        color: #ffffff;
+    }
+    .invert-mode svg {
+        fill: #d0d0d0;
+    }
+    .invert-mode .bg-background {
+        /*
+            background-color: #000;
+        */
+    }
+    .white-background {
+        background-color: #fff;
+    }
+
+    .invert-mode .white-background {
+        background-color: #000;
+    }
+
+    .invert-mode span, .invert-mode p {
+        color: #d0d0d0;
+    }
+
+    .invert-mode img {
+        filter: invert(100%);
+    }
+
+.status-bar-safe-area {
+    display: none;
+}
+
+@supports (-webkit-touch-callout: none) {
+    .status-bar-safe-area {
+        display: flex;
+        position: sticky;
+        top: 0;
+        height: env(safe-area-inset-top);
+        background-color: #f7f7f7;
+        width: 100%;
+        z-index: 1;
+    }
+
+    .flex-column, .navbar-brand {
+        padding-left: env(safe-area-inset-left);
+    }
+}
+
+.centered {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #000;
+}
+
+.blob-1, .blob-2 {
+    width: 70px;
+    height: 70px;
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+}
+
+.blob-1 {
+    left: 20%;
+    animation: osc-l 2.5s ease infinite;
+}
+
+.blob-2 {
+    left: 80%;
+    animation: osc-r 2.5s ease infinite;
+    background: #0ff;
+}
+
+.disNone {
+    opacity: 0;
+    transition: opacity 1s ease;
+}
+
+div {
+    opacity: 1;
+    transition: opacity 1s ease;
+}
+
+@keyframes osc-l {
+    0% {
+        left: 20%;
+    }
+
+    50% {
+        left: 50%;
+    }
+
+    100% {
+        left: 20%;
+    }
+}
+
+@keyframes osc-r {
+    0% {
+        left: 80%;
+    }
+
+    50% {
+        left: 50%;
+    }
+
+    100% {
+        left: 80%;
+    }
+}
+
+.swal-modal{
+    border-radius:28px;
+}
+
+.navitem {
+    background-color: transparent;
+    transition: background-color 0.3s ease-in-out;
+}
+
+    .navitem:hover {
+        background-color: #dedede57;
+    }
+.swal-icon--success:after, .swal-icon--success:before{
+    background-color : #00000000
+}
+.swal-icon--success__hide-corners{
+    display:none;
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: box-shadow 0.3s ease;
+}
+
+    .card:hover {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+
+.card-body {
+    padding: 1.5rem;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.card-text {
+    color: #666;
+}
+
+.filename{
+    color:#121212;
+}
+    .filename:hover {
+        color: #000;
+    }
+
+.invert-mode .filename {
+    color: #d0d0d0;
+}
+
+    .invert-mode .filename:hover {
+        color: rgb(255 255 255 / 65%);
+    }
+
+    .invert-mode .alertdialog {
+        background-color:#000;
+    }
+    .alertdialog {
+        background-color: #fff;
+    }
+
+    .blazor-context-menu--default {
+        border-radius: 8px;
+        border:0px solid;
+        font-size: 15px;
+        background-color: #ffffff;
+        color: #000;
+        transition: all 0.3s ease;
+    }
+        .blazor-context-menu--default li {
+            margin:3px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+        .blazor-context-menu--default li:hover {
+            background-color: #d0d0d0;
+        }
+
+        .invert-mode .blazor-context-menu--default {
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #191919;
+            color: #fff
+        }
+        .invert-mode .blazor-context-menu--default li:hover {
+            background-color: #dedede57;
+        }
+
+.swal-content__input{
+    color:#000;
+    font-size:17px;
+}
+.swal-button .swal-button--cancel:hover {
+    background-color: #4d94b5
+}

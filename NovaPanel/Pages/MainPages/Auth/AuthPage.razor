@@ -1,0 +1,63 @@
+﻿@page "/a/{Route}"
+
+@using NovaPanel.Model
+
+<PageTitle>Login</PageTitle>
+
+<h3>AuthPage</h3>
+
+@if (IsAuthenticated)
+{
+    <p>登录成功！正在跳转到目标页面...</p>
+}
+else
+{
+    <div>
+        <p>请输入用户名和密码：</p>
+        <input type="text" @bind="Username" placeholder="用户名" />
+        <input type="password" @bind="Password" placeholder="密码" />
+        <button @onclick="Login">登录</button>
+        <p style="color: red;">@ErrorMessage</p>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string Route { get; set; }
+
+    private string Username { get; set; }
+    private string Password { get; set; }
+
+    private string ErrorMessage { get; set; }
+
+    private bool IsAuthenticated { get; set; }
+
+
+    private void Login()
+    {
+        if (Username.Length >= 6){
+            var userInfo = DatabaseModels.GetUserInfo(Username);
+            if (userInfo.code == 200 && userInfo.data != null)
+            {
+                var data = (User)userInfo.data;
+                if (data.UserName == Username && data.PassWord == DatabaseModels.SHA1Hash(Password))
+                {
+                    IsAuthenticated = true;
+                    ErrorMessage = string.Empty;
+
+                    JSRuntime.InvokeVoidAsync("ssc", AuthModels.Generate(Username), "7");
+                    StateHasChanged();
+                    
+                }
+                else
+                {
+                    ErrorMessage = "用户名或密码错误，请重试！";
+                }
+            }
+            else
+            {
+                ErrorMessage = "用户不存在.";
+            }
+        }
+    }
+}

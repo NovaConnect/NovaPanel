@@ -1,0 +1,126 @@
+﻿@page "/tasks"
+@inject NavigationManager NavigationManager
+@using NovaPanel.Model
+
+<link href="style/list.css" rel="stylesheet" />
+
+<h3>任务列表</h3>
+
+<Button Click="AddTask" Text="添加任务" />
+
+<div class="main-content">
+    <div class="f-list">
+        <table class="list-container">
+            <thead>
+                <tr>
+                    <th>名称</th>
+                    <th>类型</th>
+                    <th>描述</th>
+                    <th>周期</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (isAdding)
+                {
+                    <tr>
+                        <td>
+                            <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                            type="text" @bind="newTask.Name" placeholder="任务名称" />
+                        </td>
+                        <td>
+                            <select style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                            @bind="newTask.Type">
+                                <option value="CS">CS</option>
+                                <option value="PY">PY</option>
+                                <option value="JS">JS</option>
+                                <option value="BAT">BAT</option>
+                                <option value="PS">PS</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                            type="text" @bind="newTask.Tag" placeholder="任务描述" />
+                        </td>
+                        <td>
+                            <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                            @bind="newTask.Minute" type="number" placeholder="周期（分钟）" />
+                        </td>
+                        <td>
+                            <textarea style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                            @bind="newTask.Code" placeholder="代码"></textarea>
+                        </td>
+                        <td>
+                            <Button Click="SaveTask" Text="保存" />
+                            <Button Click="CancelAdd" Text="取消" />
+                        </td>
+                    </tr>
+                }
+
+                @foreach (var task in tasks)
+                {
+                    <tr>
+                        <td @onclick="()=>{showModal = true;modalContent = task.Code;}">@task.Name</td>
+                        <td>@task.Type</td>
+                        <td>@task.Tag</td>
+                        <td>@task.Minute</td>
+                        <Button Click="()=>{DatabaseModels.DeleteScheduleTask(task.Name);tasks = DatabaseModels.GetAllScheduleTasks();StateHasChanged();}" Text="删除" Style="background-color:darkred" />
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<WebNotepad Show="showModal" TContent="@modalContent" OnClose="() => showModal = false" />
+
+@code {
+    private List<ScheduleTask> tasks = new List<ScheduleTask>();
+
+    private bool showModal = false;
+    private string modalContent = "";
+
+    private bool isAdding = false;
+    private ScheduleTask newTask = new ScheduleTask();
+
+    protected override void OnInitialized()
+    {
+        tasks = DatabaseModels.GetAllScheduleTasks();
+    }
+
+    private void AddTask()
+    {
+        isAdding = true;
+        newTask = new ScheduleTask(); 
+    }
+
+    private void SaveTask()
+    {
+        if (string.IsNullOrWhiteSpace(newTask.Name) ||
+            string.IsNullOrWhiteSpace(newTask.Type) ||
+            newTask.Minute <= 0)
+        {
+            ShowError("值不合法");
+            return;
+        }
+
+        bool success = DatabaseModels.AddScheduleTask(newTask.Name, newTask.Type, newTask.Code, newTask.Minute, newTask.Tag);
+
+        if (success)
+        {
+            tasks = DatabaseModels.GetAllScheduleTasks();
+            isAdding = false;
+            StateHasChanged();
+        }
+        else
+        {
+            ShowError("添加失败");
+            StateHasChanged();
+        }
+    }
+    private async Task ShowError(string message)
+    => await JSRuntime.InvokeVoidAsync("swal", "错误", message, "error");
+    private void CancelAdd()
+    {
+        isAdding = false;
+    }
+}

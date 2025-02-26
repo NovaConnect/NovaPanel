@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Remove="Data\config.json" />
+    <Content Remove="Data\navs.json" />
+    <Content Remove="Data\ver.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Config.npc" />
+    <None Remove="Data\DLL\Microsoft.PowerShell.Commands.Diagnostics.dll" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="Data\DLL\Microsoft.PowerShell.Commands.Diagnostics.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </ApplicationDefinition>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Data\config.json">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
+    <EmbeddedResource Include="Data\ver.json" />
+    <EmbeddedResource Include="Data\navs.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Blazor.ContextMenu" Version="2.1.0" />
+    <PackageReference Include="Blazored.Modal" Version="7.3.1" />
+    <PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Data.SQLite" Version="1.0.119" />
+    <PackageReference Include="System.Management.Automation" Version="7.2.24" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.PowerShell.Commands.Diagnostics">
+      <HintPath>C:\Windows\Microsoft.NET\assembly\GAC_MSIL\Microsoft.PowerShell.Commands.Diagnostics\v4.0_3.0.0.0__31bf3856ad364e35\Microsoft.PowerShell.Commands.Diagnostics.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

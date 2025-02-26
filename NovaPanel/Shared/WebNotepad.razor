@@ -1,0 +1,121 @@
+﻿@if (Show)
+{
+    <div tag="mainalert">
+        <div data-state="open" class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+        style="pointer-events: auto; z-index: 1000;" data-aria-hidden="true" aria-hidden="true">
+            <div role="alertdialog" aria-describedby="radix-:rd:" aria-labelledby="radix-:rc:" data-state="open"
+            class="alertdialog fixed left-[50%] top-[50%] z-50 grid max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border bg-background p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%] data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%] sm:rounded-lg"
+            tabindex="-1"
+            style="pointer-events: auto; min-width: 80%; min-height: 70%;">
+                <div class="flex flex-col space-y-2 text-center sm:text-left" style="font-family: 'Cascadia Mono';">
+                    <h2 class="text-lg font-semibold">@FileName</h2>
+                    <div class="flex flex-row gap-4" style="height: 400px;">
+                        <textarea id="Editor" style="background: rgba(0, 0, 0, 0); font-size: 18px; flex: 1;"
+                        class="w-full px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                        @bind="Content"></textarea>
+
+                        @if (IsHTML)
+                        {
+                            <div id="preview" tag="HtmlPreview" style="flex: 1; overflow: auto; border: 1px solid #ccc; padding: 10px;border-radius:9px">
+                                @((MarkupString)Content)
+                            </div>
+                            <script>
+                                var edit = document.getElementById('Editor');
+                                edit.addEventListener('click', () => {
+                                document.getElementById('preview').style.height = edit.style.height;
+                                });
+                            </script>
+                        }
+                    </div>
+                </div>
+                <div style="" class="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+                    <button @onclick="Cancel" style="color: #000;" type="button"
+                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2 mt-2 sm:mt-0">
+                        Cancel
+                    </button>
+
+                    <button @onclick="Save" type="button"
+                    class="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public bool Show { get; set; }
+
+    [Parameter]
+    public string FileFullName { get; set; } = string.Empty;
+
+    [Parameter]
+    public string TContent { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+
+    private string FileName = "";
+
+    private string Content { get; set; } = string.Empty;
+
+    private bool IsHTML = false;
+
+    protected override void OnParametersSet()
+    {
+        if (Show && !string.IsNullOrEmpty(FileFullName))
+        {
+            FileName = Path.GetFileName(FileFullName);
+            Content = File.ReadAllText(FileFullName);
+            IsHTML = (Content.Contains("<html") && 
+                      Content.Contains("html>") && 
+                      Path.GetExtension(FileFullName).Contains("html")) || 
+                      Path.GetExtension(FileFullName).Contains("svg");
+        }else{
+            Content = TContent;
+            FileName = Title;
+        }
+    }
+
+    private void Save()
+    {
+        if (!string.IsNullOrEmpty(FileFullName))
+            File.WriteAllText(FileFullName, Content);
+        OnClose.InvokeAsync();
+    }
+
+    private async void Cancel()
+    {
+        if (!string.IsNullOrEmpty(FileFullName)){
+            if (Content != File.ReadAllText(FileFullName))
+            {
+                try
+                {
+                    bool confirm = await JSRuntime.InvokeAsync<bool>("swal", new
+                    {
+                        title = "文件未保存",
+                        text = "是否继续关闭？",
+                        icon = "warning",
+                        buttons = new { cancel = "取消", confirm = "继续" },
+                        dangerMode = true
+                    });
+                    if (!confirm)
+                    {
+                        return;
+                    }
+                }
+                catch
+                {
+                    return;
+                }
+            }
+        }
+        
+        await OnClose.InvokeAsync();
+    }
+}
