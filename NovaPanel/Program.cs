@@ -21,6 +21,8 @@ namespace NovaPanel
             ApplicationRuntimes.configModel = JsonConvert.DeserializeObject<ConfigModel>(File.ReadAllText("config.json"));
             ApplicationRuntimes.Theme = Themes.Parse(ApplicationRuntimes.configModel.Theme);
 
+            LoggerModels.Initialize();
+
             //var token = AuthModels.Generate("9e8be9f63");
             //Console.WriteLine(token);
             //Console.WriteLine(AuthModels.Auth("MDk5ZThiZTlmNjNQNEdzWkRJcWZiWnhXUlhEZWlMK2xOZ3dhcGZSRzVseEIyNzEyUHBhNjB3PQ[D][D]"));
@@ -32,6 +34,7 @@ namespace NovaPanel
             builder.Services.AddServerSideBlazor();
             builder.Services.AddSession();
             builder.Services.AddBlazorContextMenu();
+            builder.Services.AddHttpContextAccessor();
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

@@ -1,0 +1,196 @@
+﻿@page "/usermgr"
+@using NovaPanel.Model
+
+<table class="w-full caption-bottom text-sm">
+    <thead class="[&amp;_tr]:border-b">
+        <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+            @foreach (var header in headerText)
+            {
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">@header</th>
+            }
+        </tr>
+    </thead>
+    <tbody class="[&amp;_tr:last-child]:border-0">
+        @if (isAdding)
+        {
+            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    type="text" @bind="newUser.UserName" placeholder="用户名" />
+                </td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    type="password" @bind="newUser.PassWord" placeholder="密码" />
+                </td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    @bind="newUser.Tag" type="text" placeholder="标签" />
+                </td>
+                <td>
+                    <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                    @bind="newUser.Permissions" type="number" placeholder="权限组" />
+                </td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    <div style="display: flex; gap: 10px;">
+                        <Button Click="SaveUser" Text="保存" />
+                        <Button Click="CancelAdd" Text="取消" />
+                    </div>
+                </td>
+            </tr>
+        }
+        @foreach (var user in userList)
+        {
+            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@user.UserName</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@user.Tag</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@user.RegDate</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@GetUserPer(user.Permissions)</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    @if ((UserLevel == 0 && user.Permissions != 0) || (UserLevel == 1 && user.Permissions > 1))
+                    {
+                        <Button Click="()=>DeleteUser(user.UserName)"
+                        Text="删除"
+                        Style="background-color:rgba(255,80,80,1)" />
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+    <tfoot class="border-t font-medium [&amp;>tr]:last:border-b-0">
+        <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+            @if (IsAdminOrSuperAdmin)
+            {
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    <Button Click="AddUser" Text="添加新账户" Class="btn-white" />
+                </td>
+            }
+            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">共 @userList.Count 个账户</td>
+        </tr>
+    </tfoot>
+</table>
+
+
+
+@code {
+    private bool isAdding = false;
+    private User newUser = new();
+
+    private string UNM = "";
+
+    private List<string> headerText = new List<string> { "用户名", "标签", "注册日期", "权限组", "操作" };
+
+    private List<User> userList = DatabaseModels.GetAllUsers();
+
+    private bool IsAdminOrSuperAdmin = false;
+    private int UserLevel = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        UNM = await JSRuntime.InvokeAsync<string>("csc", "unm");
+        var info = DatabaseModels.GetUserInfo(UNM).data;
+        if(info != null){
+            if (((User)info).Permissions == 0 || ((User)info).Permissions == 1)
+            {
+                IsAdminOrSuperAdmin = true;
+                UserLevel = ((User)info).Permissions;
+            }
+        }
+
+    }
+
+    public string GetUserPer(int level){
+        switch (level)
+        {
+            case 0:
+                return "超级管理员";
+            case 1:
+                return "管理员";
+            case 2:
+                return "成员";
+            case 3:
+                return "访客";
+            default:
+                return "未知";
+        }
+    }
+
+    private void AddUser()
+    {
+        isAdding = true;
+        newUser = new User();
+    }
+
+    private void SaveUser()
+    {
+        if (newUser.UserName.Length < 6 || 
+            newUser.UserName.Length > 15||
+            newUser.PassWord.Length < 6 || 
+            newUser.PassWord.Length > 20)
+        {
+            _ = ShowError("用户名或密码长度不符合要求");
+            return;
+        }
+        if (newUser.Permissions == 1){
+            if (UserLevel != 0)
+            {
+                _ = ShowError("你没有权限创建管理员账户");
+                return;
+            }
+        }
+        if (newUser.Permissions == 0)
+        {
+            _ = ShowError("你没有权限创建超级管理员账户");
+            return;
+        }
+        if (DatabaseModels.AddUser(newUser.UserName,
+                               newUser.PassWord,
+                               newUser.Tag,
+                               DateTime.Now,
+                               newUser.Permissions))
+        {
+            userList = DatabaseModels.GetAllUsers();
+            LoggerModels.AddToLog($"添加用户[{newUser.UserName}],操作者[{UNM}],新用户权限[{newUser.Permissions},{GetUserPer(newUser.Permissions)}],IP:[{HttpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString()}]", InfoLevel.Warning);
+        }
+        else
+        {
+            _ = ShowError("添加失败");
+        }
+        isAdding = false;
+        StateHasChanged();
+    }
+
+    private async Task DeleteUser(string Name)
+    {
+        try
+        {
+            bool confirm = await JSRuntime.InvokeAsync<bool>("swal", new
+            {
+                title = "安全警告",
+                text = $"确定删除用户{Name}吗，此操作不可逆.",
+                icon = "warning",
+                buttons = new { cancel = "取消", confirm = "继续" },
+                dangerMode = true
+            });
+
+            if (!confirm) return;
+            DatabaseModels.DeleteUser(name: Name);
+            userList = DatabaseModels.GetAllUsers();
+            LoggerModels.AddToLog($"删除用户[{Name}],操作者[{UNM}],IP:[{HttpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString()}]",
+            InfoLevel.Warning);
+        }
+        catch
+        {
+
+        }
+
+        StateHasChanged();
+    }
+
+    private void CancelAdd()
+    {
+        isAdding = false;
+    }
+
+    private async Task ShowError(string message)
+        => await JSRuntime.InvokeVoidAsync("swal", "错误", message, "error");
+}

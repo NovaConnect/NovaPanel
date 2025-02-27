@@ -1,0 +1,64 @@
+﻿@page "/logs"
+@using NovaPanel.Model
+
+<div class="flex">
+    <div class="w-1/4 p-4 border-r">
+        <ul>
+            @foreach (var log in logs)
+            {
+                <li style="border-radius:8px;min-width:130px;margin:5px;margin-top:10px;"
+                    @onclick="() => LoadLogFile(log)"
+                    class="align-middle cursor-pointer hover:bg-gray-200 p-2 @(selectedLog == log ? "btn-select" : "")">
+                    @Path.GetFileName(log).Replace(".log", "")
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="w-3/4 p-4">
+        <table class="w-full caption-bottom text-sm">
+            <caption class="mt-4 text-sm text-muted-foreground"></caption>
+            <thead class="[&_tr]:border-b">
+                <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                    <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">时间</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">等级</th>
+                    <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0">消息</th>
+                </tr>
+            </thead>
+            <tbody class="[&_tr:last-child]:border-0">
+                @foreach (var log in logFile)
+                {
+                    <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">@log.Time</td>
+                        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">@log.Level</td>
+                        <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">@log.Message</td>
+                    </tr>
+                }
+            </tbody>
+            <tfoot class="border-t font-medium [&>tr]:last:border-b-0">
+                <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                    <td class="p-4 align-middle [&:has([role=checkbox])]:pr-0">当日共 @logFile.Count 条日志</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+
+@code {
+    private List<string> logs = new();
+    private List<LogEntry> logFile = new();
+    private string selectedLog = null;
+
+    protected override void OnInitialized()
+    {
+        logs = LoggerModels.GetAllLogFiles();
+    }
+
+    private void LoadLogFile(string logFileName)
+    {
+        selectedLog = logFileName;
+        logFile = LoggerModels.GetLogEntries(logFileName);
+    }
+
+    private async Task ShowError(string message)
+        => await JSRuntime.InvokeVoidAsync("swal", "错误", message, "error");
+}

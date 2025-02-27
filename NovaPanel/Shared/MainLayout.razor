@@ -22,7 +22,7 @@
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender){
-            var token = await JSRuntime.InvokeAsync<string>("csc");
+            var token = await JSRuntime.InvokeAsync<string>("csc","session");
             if (token != null && token.Length >= 10)
             {
                 if (AuthModels.Auth(token))

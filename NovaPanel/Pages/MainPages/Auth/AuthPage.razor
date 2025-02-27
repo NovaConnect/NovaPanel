@@ -45,9 +45,14 @@ else
                     IsAuthenticated = true;
                     ErrorMessage = string.Empty;
 
-                    JSRuntime.InvokeVoidAsync("ssc", AuthModels.Generate(Username), "7");
-                    StateHasChanged();
-                    
+                    JSRuntime.InvokeVoidAsync("ssc", "session", AuthModels.Generate(Username), "7");
+                    JSRuntime.InvokeVoidAsync("ssc", "unm", Username, "7");
+
+                    LoggerModels.AddToLog($"用户 {Username} 登录 , IP:[{HttpContextAccessor.HttpContext?.Connection?.RemoteIpAddress?.ToString()}]",
+                    InfoLevel.Warning);
+
+
+                    NavigationManager.NavigateTo("/");
                 }
                 else
                 {

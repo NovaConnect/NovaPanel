@@ -23,7 +23,7 @@ namespace NovaPanel.Model
         public string PassWord { get; set; }
         public string Tag { get; set; }
         public DateTime RegDate { get; set; }
-        public int Permissions { get; set; }
+        public int Permissions { get; set; } = 3;
     }
 
     // 插件表
@@ -158,10 +158,10 @@ namespace NovaPanel.Model
 
                 if (!_disposed)
                 {
-                    var usw = Guid.NewGuid().ToString("N").Substring(0, new Random().Next(6, 12));
+                    var usw = Guid.NewGuid().ToString("N").Substring(0, new Random().Next(6, 15));
                     var psw = Guid.NewGuid().ToString("N").Substring(0, new Random().Next(15, 20));
                     var res = AddUser(usw,
-                        SHA1Hash(psw),
+                        psw,
                         "初始用户，可更改，不可删除",
                         DateTime.Now,
                         0);
@@ -176,6 +176,7 @@ namespace NovaPanel.Model
 
         public static bool AddUser(string userName, string passWord, string tag, DateTime regDate, int permissions)
         {
+            passWord = SHA1Hash(passWord);
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 connection.Open();
@@ -264,6 +265,52 @@ namespace NovaPanel.Model
             }
         }
 
+        public static List<User> GetAllUsers()
+        {
+            List<User> users = new List<User>();
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string query = "SELECT * FROM Users";
+                using (var cmd = new SQLiteCommand(query, connection))
+                {
+                    using (var reader = cmd.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            users.Add(new User
+                            {
+                                UserName = reader["UserName"].ToString(),
+                                PassWord = reader["PassWord"].ToString(),
+                                Tag = reader["Tag"].ToString(),
+                                RegDate = DateTime.Parse(reader["RegDate"].ToString()),
+                                Permissions = int.Parse(reader["Permissions"].ToString()),
+                            });
+                        }
+                    }
+                }
+            }
+            return users;
+        }
+
+        public static bool DeleteUser(string name)
+        {
+            using (var connection = new SQLiteConnection(_connectionString))
+            {
+                connection.Open();
+                string deleteTaskQuery = @"
+                    DELETE FROM Users
+                    WHERE UserName = @UserName";
+
+                using (var cmd = new SQLiteCommand(deleteTaskQuery, connection))
+                {
+                    cmd.Parameters.AddWithValue("@UserName", name);
+                    cmd.ExecuteNonQuery();
+                }
+                return true;
+            }
+        }
+
         public static List<ScheduleTask> GetAllScheduleTasks()
         {
             List<ScheduleTask> tasks = new List<ScheduleTask>();
@@ -336,6 +383,7 @@ namespace NovaPanel.Model
                 return true;
             }
         }
+        
         public static bool DeleteScheduleTask(string name)
         {
             using (var connection = new SQLiteConnection(_connectionString))

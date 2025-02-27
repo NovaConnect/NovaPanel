@@ -48,57 +48,51 @@
         else
         {
             <ContextMenuTrigger MenuId="DirContextMenu">
-                <div class="f-list">
-                    <table class="list-container">
-                        <thead>
-                            <tr>
-                                <th @onclick='() => SortBy("Name")'>文件名</th>
-                                <th @onclick='() => SortBy("Size")'>大小</th>
-                                <th @onclick='() => SortBy("CreateTime")'>创建时间</th>
-                                <th @onclick='() => SortBy("LastWriteTime")'>上次修改时间</th>
-                                <th @onclick='() => SortBy("FileType")'>类型</th>
-                                <th @onclick='() => SortBy("Permissions")'>权限</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-                            @if (currentFiles != null)
+                <table class="w-full caption-bottom text-sm">
+                    <caption class="mt-4 text-sm text-muted-foreground"></caption>
+                    <thead class="[&amp;_tr]:border-b">
+                        <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                            <th @onclick='() => SortBy("Name")'>文件名</th>
+                            <th @onclick='() => SortBy("Size")'>大小</th>
+                            <th @onclick='() => SortBy("CreateTime")'>创建时间</th>
+                            <th @onclick='() => SortBy("LastWriteTime")'>上次修改时间</th>
+                            <th @onclick='() => SortBy("FileType")'>类型</th>
+                            <th @onclick='() => SortBy("Permissions")'>权限</th>
+                        </tr>
+                    </thead>
+                    <tbody class="[&amp;_tr:last-child]:border-0">
+                        @foreach (var file in currentFiles)
+                        {
+                            if (File.Exists(file.FullName) || Directory.Exists(file.FullName))
                             {
-                                @foreach (var file in currentFiles)
-                                {
-                                    if (File.Exists(file.FullName) || Directory.Exists(file.FullName))
-                                    {
-                                        <tr>
-                                            <td @onclick="() => OpenItem(file)" @onmousedown='() => {contextMenuTargetFile = file;Console.WriteLine($"Select: {file.Name}");}'>
-                                                @if (file.FileType == FileItemType.File)
-                                                {
-                                                    <ContextMenuTrigger MenuId="FileContextMenu">
-                                                        @file.Name
-                                                    </ContextMenuTrigger>
-                                                }
-                                                else
-                                                    @file.Name
+                                <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                                    <td class="f-list td " @onclick="() => OpenItem(file)" @onmousedown='() => {contextMenuTargetFile = file;Console.WriteLine($"Select: {file.Name}");}'>
+                                        @if (file.FileType == FileItemType.File)
+                                        {
+                                            <ContextMenuTrigger MenuId="FileContextMenu">
+                                                @file.Name
+                                            </ContextMenuTrigger>
+                                        }
+                                        else
+                                        {
+                                            @file.Name
+                                        }
+                                    </td>
+                                    <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@FileFuns.FormatSize(file.Size)</td>
+                                    <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@file.CreateTime</td>
+                                    <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@file.LastWriteTime</td>
+                                    <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@file.FileType.ToString()</td>
+                                    <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@file.Permissions</td>
+                                </tr>
 
-                                            </td>
-                                            <td style="text-align:center">@FileFuns.FormatSize(file.Size)</td>
-                                            <td style="text-align:center">@file.CreateTime</td>
-                                            <td style="text-align:center">@file.LastWriteTime</td>
-                                            <td style="text-align:center">@file.FileType.ToString()</td>
-                                            <td style="text-align:center">@file.Permissions</td>
-                                        </tr>
-
-                                    }
-                                }
                             }
-
-                        </tbody>
-
-                    </table>
-                </div>
+                        }
+                    </tbody>
+                </table>
             </ContextMenuTrigger>
         }
     </div>
+
 </div>
 
 <WebNotepad Show="showModal" FileFullName="@modalFullName" OnClose="CloseModal" />

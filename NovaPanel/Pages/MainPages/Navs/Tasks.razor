@@ -2,78 +2,87 @@
 @inject NavigationManager NavigationManager
 @using NovaPanel.Model
 
-<link href="style/list.css" rel="stylesheet" />
 
-<h3>任务列表</h3>
-
-<Button Click="AddTask" Text="添加任务" />
-
-<div class="main-content">
-    <div class="f-list">
-        <table class="list-container">
-            <thead>
-                <tr>
-                    <th>名称</th>
-                    <th>类型</th>
-                    <th>描述</th>
-                    <th>周期</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (isAdding)
-                {
-                    <tr>
-                        <td>
-                            <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                            type="text" @bind="newTask.Name" placeholder="任务名称" />
-                        </td>
-                        <td>
-                            <select style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+<table class="w-full caption-bottom text-sm">
+    <caption class="mt-4 text-sm text-muted-foreground"></caption>
+    <thead class="[&amp;_tr]:border-b">
+        <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+            @foreach (var header in headerText)
+            {
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">@header</th>
+            }
+        </tr>
+    </thead>
+    <tbody class="[&amp;_tr:last-child]:border-0">
+        @if (isAdding)
+        {
+            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                           type="text" @bind="newTask.Name" placeholder="任务名称" />
+                </td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    <select style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
                             @bind="newTask.Type">
-                                <option value="CS">CS</option>
-                                <option value="PY">PY</option>
-                                <option value="JS">JS</option>
-                                <option value="BAT">BAT</option>
-                                <option value="PS">PS</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                            type="text" @bind="newTask.Tag" placeholder="任务描述" />
-                        </td>
-                        <td>
-                            <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                            @bind="newTask.Minute" type="number" placeholder="周期（分钟）" />
-                        </td>
-                        <td>
-                            <textarea style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
-                            @bind="newTask.Code" placeholder="代码"></textarea>
-                        </td>
-                        <td>
-                            <Button Click="SaveTask" Text="保存" />
-                            <Button Click="CancelAdd" Text="取消" />
-                        </td>
-                    </tr>
-                }
+                        <option value="CS">CS</option>
+                        <option value="PY">PY</option>
+                        <option value="JS">JS</option>
+                        <option value="BAT">BAT</option>
+                        <option value="PS">PS</option>
+                    </select>
+                </td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                           type="text" @bind="newTask.Tag" placeholder="任务描述" />
+                </td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    <input style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                           @bind="newTask.Minute" type="number" placeholder="周期（分钟）" />
+                </td>
+                <td>
+                    <textarea style="color:#000" class="flex w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none  focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+                              @bind="newTask.Code" placeholder="代码"></textarea>
+                </td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    <div style="display: flex; gap: 10px;">
+                        <Button Click="SaveTask" Text="保存" />
+                        <Button Click="CancelAdd" Text="取消" />
+                    </div>
+                </td>
+            </tr>
+        }
+        @foreach (var task in tasks)
+        {
+            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <td @onclick="()=>{showModal = true;modalContent = task.Code;}" class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@task.Name</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@task.Type</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@task.Tag</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@task.Minute min</td>
+                <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                    <Button Click="()=>DelTask(task.Name)"
+                            Text="删除"
+                            Style="background-color:rgba(255,80,80,1)" />
+                </td>
+                
+            </tr>
+        }
+    </tbody>
+    <tfoot class="border-t font-medium [&amp;>tr]:last:border-b-0">
+        <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">
+                <Button Class="btn-white" Click="AddTask" Text="添加任务" />
+            </td>
+            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">共 @tasks.Count 个计划任务</td>
+        </tr>
+    </tfoot>
+</table>
 
-                @foreach (var task in tasks)
-                {
-                    <tr>
-                        <td @onclick="()=>{showModal = true;modalContent = task.Code;}">@task.Name</td>
-                        <td>@task.Type</td>
-                        <td>@task.Tag</td>
-                        <td>@task.Minute</td>
-                        <Button Click="()=>{DatabaseModels.DeleteScheduleTask(task.Name);tasks = DatabaseModels.GetAllScheduleTasks();StateHasChanged();}" Text="删除" Style="background-color:darkred" />
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
 
 <WebNotepad Show="showModal" TContent="@modalContent" OnClose="() => showModal = false" />
 
 @code {
+    private List<string> headerText = new List<string> { "任务名", "脚本类型", "备注", "周期", "操作" };
+
     private List<ScheduleTask> tasks = new List<ScheduleTask>();
 
     private bool showModal = false;
@@ -85,6 +94,13 @@
     protected override void OnInitialized()
     {
         tasks = DatabaseModels.GetAllScheduleTasks();
+    }
+
+    private void DelTask(string name)
+    {
+        DatabaseModels.DeleteScheduleTask(name); 
+        tasks = DatabaseModels.GetAllScheduleTasks(); 
+        StateHasChanged();
     }
 
     private void AddTask()
@@ -99,7 +115,7 @@
             string.IsNullOrWhiteSpace(newTask.Type) ||
             newTask.Minute <= 0)
         {
-            ShowError("值不合法");
+            _ = ShowError("值不合法");
             return;
         }
 
@@ -113,14 +129,16 @@
         }
         else
         {
-            ShowError("添加失败");
+            _ = ShowError("添加失败");
             StateHasChanged();
         }
     }
-    private async Task ShowError(string message)
-    => await JSRuntime.InvokeVoidAsync("swal", "错误", message, "error");
+
     private void CancelAdd()
     {
         isAdding = false;
     }
+    private async Task ShowError(string message)
+    => await JSRuntime.InvokeVoidAsync("swal", "错误", message, "error");
+
 }

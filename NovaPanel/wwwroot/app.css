@@ -262,3 +262,28 @@ div {
 .swal-button .swal-button--cancel:hover {
     background-color: #4d94b5
 }
+
+.invert-mode .btn-white {
+    background: #fff;
+    color: #000;
+}
+
+    .invert-mode .btn-white:hover {
+        background: rgb(255 255 255 / 65%);
+        color: #000;
+    }
+
+.btn-white {
+    background: #000;
+    color: #fff;
+    transition: all 0.3s ease;
+}
+    .btn-white:hover {
+        background: #333333;
+        color: #fff;
+    }
+
+.btn-select {
+    background: #333333;
+    color: #fff;
+}

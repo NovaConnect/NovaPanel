@@ -28,18 +28,22 @@
     border-collapse: collapse;
 }
 
-.f-list th, .f-list td {
-    height:40px;
+th, .f-list td {
+    height: 40px;
     border-radius: 5px;
     padding: 8px;
     transition: background-color 0.3s;
 }
+th {
+    margin: 10px;
+    text-align: center;
+}
 
-    .f-list td:hover{
+    .f-list td:hover {
         background-color: rgb(4, 4, 4, 0.40);
     }
 
-    .invert-mode .f-list td:hover{
-        background-color: rgba(255, 255, 255, 0.4);
-        cursor: pointer
-    }
+.invert-mode .f-list td:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+    cursor: pointer
+}

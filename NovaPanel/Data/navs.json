@@ -36,7 +36,7 @@
   {
     "name": "用户管理",
     "icon": "font22 fas fa-users",
-    "jump": "/user-management",
+    "jump": "/usermgr",
     "tooltip": "User Management",
     "mobile": true
   },

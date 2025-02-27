@@ -1,0 +1,51 @@
+﻿@typeparam TItem
+
+<table class="w-full caption-bottom text-sm">
+    <caption class="mt-4 text-sm text-muted-foreground">@Caption</caption>
+    <thead class="[&amp;_tr]:border-b">
+        <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+            @foreach (var header in HeaderText)
+            {
+                <th class="h-12 px-4 text-left align-middle font-medium text-muted-foreground [&amp;:has([role=checkbox])]:pr-0">@header</th>
+            }
+        </tr>
+    </thead>
+    <tbody class="[&amp;_tr:last-child]:border-0">
+        @foreach (var item in Items)
+        {
+            <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                @foreach (var header in Headers)
+                {
+                    var property = typeof(TItem).GetProperty(header);
+                    if (property != null)
+                    {
+                        <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0">@property.GetValue(item)</td>
+                    }
+                }
+            </tr>
+        }
+    </tbody>
+    <tfoot class="border-t font-medium [&amp;>tr]:last:border-b-0">
+        <tr class="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0" colspan="@Headers.Count - 1">Total</td>
+            <td class="p-4 align-middle [&amp;:has([role=checkbox])]:pr-0 text-right">@Total</td>
+        </tr>
+    </tfoot>
+</table>
+
+@code {
+    [Parameter]
+    public string Caption { get; set; }
+
+    [Parameter]
+    public List<string> HeaderText { get; set; }
+
+    [Parameter]
+    public List<string> Headers { get; set; }
+
+    [Parameter]
+    public List<TItem> Items { get; set; }
+
+    [Parameter]
+    public string Total { get; set; }
+}
