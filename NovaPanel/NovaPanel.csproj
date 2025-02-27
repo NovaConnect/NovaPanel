@@ -33,7 +33,6 @@
 
   <ItemGroup>
     <PackageReference Include="Blazor.ContextMenu" Version="2.1.0" />
-    <PackageReference Include="Blazored.Modal" Version="7.3.1" />
     <PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.119" />

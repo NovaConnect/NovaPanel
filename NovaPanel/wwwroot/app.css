@@ -32,29 +32,29 @@ svg, span, img {
     transition: fill 0.3s, color 0.3s, filter 0.3s;
 }
 
-.invert-mode {
+.theme-toggle {
     background-color: #121212;
     color: #d0d0d0;
 }
 
-    .invert-mode .swal-title {
+    .theme-toggle .swal-title {
         color: rgb(255 255 255 / 65%);
     }
 
-    .invert-mode swal-title, .invert-mode .swal-text {
+    .theme-toggle swal-title, .theme-toggle .swal-text {
         color: rgb(255 255 255 / 65%);
     }
-    .invert-mode .swal-modal {
+    .theme-toggle .swal-modal {
         background-color: #333333;
     }
-    .invert-mode .swal-button {
+    .theme-toggle .swal-button {
         background-color: #6ca2bb;
         color: #ffffff;
     }
-    .invert-mode svg {
+    .theme-toggle svg {
         fill: #d0d0d0;
     }
-    .invert-mode .bg-background {
+    .theme-toggle .bg-background {
         /*
             background-color: #000;
         */
@@ -63,15 +63,15 @@ svg, span, img {
         background-color: #fff;
     }
 
-    .invert-mode .white-background {
+    .theme-toggle .white-background {
         background-color: #000;
     }
 
-    .invert-mode span, .invert-mode p {
+    .theme-toggle span, .theme-toggle p {
         color: #d0d0d0;
     }
 
-    .invert-mode img {
+    .theme-toggle img {
         filter: invert(100%);
     }
 
@@ -213,15 +213,15 @@ div {
         color: #000;
     }
 
-.invert-mode .filename {
+.theme-toggle .filename {
     color: #d0d0d0;
 }
 
-    .invert-mode .filename:hover {
+    .theme-toggle .filename:hover {
         color: rgb(255 255 255 / 65%);
     }
 
-    .invert-mode .alertdialog {
+    .theme-toggle .alertdialog {
         background-color:#000;
     }
     .alertdialog {
@@ -245,13 +245,13 @@ div {
             background-color: #d0d0d0;
         }
 
-        .invert-mode .blazor-context-menu--default {
+        .theme-toggle .blazor-context-menu--default {
             border-radius: 8px;
             font-size: 15px;
             background-color: #191919;
             color: #fff
         }
-        .invert-mode .blazor-context-menu--default li:hover {
+        .theme-toggle .blazor-context-menu--default li:hover {
             background-color: #dedede57;
         }
 
@@ -263,12 +263,12 @@ div {
     background-color: #4d94b5
 }
 
-.invert-mode .btn-white {
+.theme-toggle .btn-white {
     background: #fff;
     color: #000;
 }
 
-    .invert-mode .btn-white:hover {
+    .theme-toggle .btn-white:hover {
         background: rgb(255 255 255 / 65%);
         color: #000;
     }
