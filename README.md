@@ -6,6 +6,10 @@
 
 **NovaPanel** 是一款专为 Windows Server 设计的强大 Web 运维面板，旨在简化服务器管理，提高运维效率。通过仿真的任务管理器、资源管理器以及灵活的计划任务，NovaPanel 为您提供了一个直观、高效的服务器管理平台。
 
+## Panel
+![DARK](dark.png)
+![LIGHT](light.png)
+
 ## 主要特性
 
 * **Windows Server 专属：** 专为 Windows Server 优化，提供稳定、高效的运维体验。
