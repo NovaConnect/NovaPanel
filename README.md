@@ -56,10 +56,6 @@
 
 欢迎贡献代码、提出建议或报告问题。请通过 GitHub Issues 或 Pull Requests 参与项目。
 
-## 许可证
-
-本项目采用 MIT 许可证。
-
 ## 联系方式
 
 如果您有任何问题或建议，请通过以下方式联系我们：
@@ -68,5 +64,7 @@
 * GitHub：[NovaConnect社区](https://github.com/NovaConnect)
 
 ## 鸣谢
-
+* **第三方库支持：**
+    * 使用 `Blazor.ContextMenu` 提供右键菜单功能。
+    * 使用 `Shadcn/UI` 提供美观、现代的用户界面。
 感谢所有为本项目做出贡献的开发者和用户。
