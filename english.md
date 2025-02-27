@@ -1,10 +1,5 @@
 # NovaPanel - Windows Server Web Operation Panel
 
-[Simplified Chinese]
-[English]()
-[Japanese]()
-[Korean]()
-
 **NovaPanel** is a powerful Web operation panel designed for Windows Server, aiming to simplify server management and improve operation efficiency. Through the simulated task manager, resource manager and flexible scheduled tasks, NovaPanel provides you with an intuitive and efficient server management platform.
 
 ## Main Features
