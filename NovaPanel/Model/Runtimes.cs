@@ -1,4 +1,5 @@
-﻿using NovaPanel.Model.ServerMonitorM;
+﻿using Newtonsoft.Json;
+using NovaPanel.Model.ServerMonitorM;
 
 namespace NovaPanel.Model
 {
@@ -35,6 +36,14 @@ namespace NovaPanel.Model
 
             public static void Stop() => _isRunning = false;
 
+        }
+
+        public static void LoadConfig()
+        {
+            ApplicationRuntimes.NavItems = JsonConvert.DeserializeObject<NavItem[]>(Program.ReadFile("navs.json"));
+            ApplicationRuntimes.VersionInfo = JsonConvert.DeserializeObject<VersionItem>(Program.ReadFile("ver.json"));
+            ApplicationRuntimes.configModel = JsonConvert.DeserializeObject<ConfigModel>(File.ReadAllText("config.json"));
+            ApplicationRuntimes.Theme = Themes.Parse(ApplicationRuntimes.configModel.Theme);
         }
     }
 }

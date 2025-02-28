@@ -1,0 +1,29 @@
+﻿@page "/readme"
+
+<PageTitle>教程 - @file</PageTitle>
+<div class="flex">
+    <div class="w-1/4 p-4 border-r">
+        <ul>
+            @foreach (var file in Index)
+            {
+                <li style="border-radius:8px;min-width:130px;margin:5px;margin-top:10px;"
+                    @onclick='() => {content = Program.ReadFile($"Readme.{file}");selectedFile=file;}'
+                class="align-middle cursor-pointer hover:bg-gray-200 p-2 @(selectedFile == file ? "btn-select" : "")">
+                    @file.Replace(".html", "")
+                </li>
+            }
+        </ul>
+    </div>
+    <div class="w-3/4 p-4">
+        @((MarkupString)content)
+    </div>
+</div>
+
+
+@code {
+    public string[] Index = new string[] { "gcc.html" };
+    public string? file { get; set; } = "Index";
+    public string content { get; set; } = "";
+    public string selectedFile = "";
+
+}

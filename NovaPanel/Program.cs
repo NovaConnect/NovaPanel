@@ -6,6 +6,10 @@ using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using NovaPanel.Model.ServerMonitorM;
+using System.Timers;
+using Timer = System.Timers.Timer;
+using NovaPanel.Model.Project;
+using System.Threading.Tasks;
 
 namespace NovaPanel
 {
@@ -13,19 +17,34 @@ namespace NovaPanel
     {
         public static void Main(string[] args)
         {
-            ApplicationRuntimes.NavItems = JsonConvert.DeserializeObject<NavItem[]>(ReadFile("navs.json"));
-            ApplicationRuntimes.VersionInfo = JsonConvert.DeserializeObject<VersionItem>(ReadFile("ver.json"));
             DatabaseModels.CheckAndCreateTables();
             _ = ApplicationRuntimes.State.StartAsync();
-
-            ApplicationRuntimes.configModel = JsonConvert.DeserializeObject<ConfigModel>(File.ReadAllText("config.json"));
-            ApplicationRuntimes.Theme = Themes.Parse(ApplicationRuntimes.configModel.Theme);
-
+            ApplicationRuntimes.LoadConfig();
             LoggerModels.Initialize();
-
-            //var token = AuthModels.Generate("9e8be9f63");
-            //Console.WriteLine(token);
-            //Console.WriteLine(AuthModels.Auth("MDk5ZThiZTlmNjNQNEdzWkRJcWZiWnhXUlhEZWlMK2xOZ3dhcGZSRzVseEIyNzEyUHBhNjB3PQ[D][D]"));
+            var tasks = DatabaseModels.GetAllScheduleTasks();
+            foreach (var task in tasks)
+            {
+                Task.Run(() =>
+                {
+                    var timer = new Timer(task.Minute * 60000);
+                    timer.Elapsed += (sender, e) =>
+                    {
+                        var time = (sender as Timer);
+                        if (task.Enable == true)
+                        {
+                            RunCodeModels.Run(task);
+                            LoggerModels.AddToLog($"运行任务[{task.Name}],类型[{task.Type}],周期[{task.Minute}min]", InfoLevel.Normal);
+                        }
+                        else
+                        {
+                            time.Stop();
+                            return;
+                        }
+                    };
+                    timer.Start();
+                });
+            }
+            Console.WriteLine($"导入{tasks.Count}个计划任务.");
 
             var builder = WebApplication.CreateBuilder(args);
 

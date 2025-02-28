@@ -108,13 +108,14 @@
 </ContextMenu>
 
 <ContextMenu Id="DirContextMenu">
-    <Item OnClick="@ToZip">压缩</Item>
+    <Item OnClick="ToZip">压缩</Item>
+    <Item OnClick="RemoveFile">删除</Item>
     @if (copiedFilePath != null)
     {
-        <Item OnClick="@PasteFile">粘贴</Item>
+        <Item OnClick="PasteFile">粘贴</Item>
         <Seperator />
     }
-    <Item OnClick="@CreatDir">新建文件夹</Item>
+    <Item OnClick="CreatDir">新建文件夹</Item>
     <Item>
         新建文件
         <SubMenu>
@@ -128,10 +129,9 @@
     <Item>
         新建开发项目
         <SubMenu>
-            <Item OnClick='()=>CreateNewFile("txt")'>.NET C# 控制台项目</Item>
-            <Item OnClick='()=>CreateNewFile("txt")'>.NET VB 控制台项目</Item>
-            <Item OnClick='()=>CreateNewFile("json")'>C++ 控制台项目</Item>
-            <Item OnClick='()=>CreateNewFile("html")'>HTML 网站项目</Item>
+            <Item OnClick='()=>CreateNewProject("cs")'>.NET C# 控制台项目</Item>
+            <Item OnClick='()=>CreateNewProject("cpp")'>C++ 控制台项目</Item>
+            <Item OnClick='()=>CreateNewProject("html")'>HTML 网站项目</Item>
         </SubMenu>
     </Item>
 </ContextMenu>

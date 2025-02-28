@@ -1,13 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Remove="Data\config.json" />
+    <Content Remove="Data\import.json" />
     <Content Remove="Data\navs.json" />
     <Content Remove="Data\ver.json" />
   </ItemGroup>
@@ -15,6 +16,7 @@
   <ItemGroup>
     <None Remove="Config.npc" />
     <None Remove="Data\DLL\Microsoft.PowerShell.Commands.Diagnostics.dll" />
+    <None Remove="Data\Readme\gcc.html" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,12 +29,17 @@
     <Resource Include="Data\config.json">
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </Resource>
+    <EmbeddedResource Include="Data\import.json" />
+    <EmbeddedResource Include="Data\Readme\gcc.html" />
     <EmbeddedResource Include="Data\ver.json" />
     <EmbeddedResource Include="Data\navs.json" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Blazor.ContextMenu" Version="2.1.0" />
+    <PackageReference Include="IronPython" Version="3.4.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Scripting" Version="4.13.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Scripting" Version="4.13.0" />
     <PackageReference Include="Microsoft.Management.Infrastructure" Version="3.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="System.Data.SQLite" Version="1.0.119" />

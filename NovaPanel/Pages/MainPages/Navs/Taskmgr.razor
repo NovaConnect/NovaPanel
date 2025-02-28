@@ -147,82 +147,75 @@
 
     private async void LoadProcess()
     {
-        processList = new List<ProcessInfo>();
-        fprocessList = new List<ProcessInfo>();
-
-        await Task.Run(() =>
+        try
         {
-            Process[] processes = Process.GetProcesses();
+            processList = new List<ProcessInfo>();
+            fprocessList = new List<ProcessInfo>();
 
-            Parallel.ForEach(processes, process =>
+            await Task.Run(() =>
             {
-                try
+                Process[] processes = Process.GetProcesses();
+
+                Parallel.ForEach(processes, process =>
                 {
-                    // 获取句柄
-                    IntPtr processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, process.Id);
-
-                    string processName = process.ProcessName;
-                    StringBuilder processPath = new StringBuilder(MAX_PATH);
-                    int pathSize = MAX_PATH;
-
-                    long creationTime, exitTime, kernelTime, userTime;
-                    string crTime = "";
-                    if (processHandle == IntPtr.Zero)
+                    try
                     {
-                        //Console.WriteLine($"无法打开进程 {processName} (PID: {process.Id})");
-                    }
+                        // 获取句柄
+                        IntPtr processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, process.Id);
 
-                    if (!QueryFullProcessImageName(processHandle, 0, processPath, ref pathSize))
+                        string processName = process.ProcessName;
+                        StringBuilder processPath = new StringBuilder(MAX_PATH);
+                        int pathSize = MAX_PATH;
+
+                        long creationTime, exitTime, kernelTime, userTime;
+                        string crTime = "";
+                        if (processHandle == IntPtr.Zero)
+                        {
+                            return;
+                        }
+
+                        QueryFullProcessImageName(processHandle, 0, processPath, ref pathSize);
+                        if (!GetProcessTimes(processHandle, out creationTime, out exitTime, out kernelTime, out userTime))
+                            crTime = "";
+                        else
+                            crTime = DateTime.FromFileTime(creationTime).ToString("MM-dd HH:mm:ss");
+                        
+
+                        PROCESS_MEMORY_COUNTERS memCounters;
+                        GetProcessMemoryInfo(processHandle, out memCounters, (uint)Marshal.SizeOf(typeof(PROCESS_MEMORY_COUNTERS)));
+
+                        // 如果所有检查都通过，则添加到列表
+                        lock (processList)
+                        {
+                            processList.Add(new ProcessInfo
+                                {
+                                    Name = processName,
+                                    Pid = process.Id,
+                                    Level = process.BasePriority,
+                                    CreateTime = crTime,
+                                    Cpu = process.TotalProcessorTime.TotalSeconds / Environment.ProcessorCount / Environment.TickCount,
+                                    Ram = memCounters.WorkingSetSize / 1024.0 / 1024.0,
+                                    User = process.MachineName,
+                                    Path = processPath.ToString()
+                                });
+                        }
+
+                        CloseHandle(processHandle);
+
+                    }
+                    catch (Exception ex)
                     {
-                        //Console.WriteLine($"无法获取进程路径 {processName} (PID: {process.Id})");
+                        //Console.WriteLine($"Error accessing process {process.ProcessName}: {ex.Message}");
                     }
+                });
 
-                    if (!GetProcessTimes(processHandle, out creationTime, out exitTime, out kernelTime, out userTime))
-                    {
-                        crTime = "";
-                        //Console.WriteLine($"无法获取启动时间 {processName} (PID: {process.Id})");
-                    }
-                    else
-                    {
-                        crTime = DateTime.FromFileTime(creationTime).ToString("MM-dd HH:mm:ss");
-                    }
-
-                    PROCESS_MEMORY_COUNTERS memCounters;
-                    if (!GetProcessMemoryInfo(processHandle, out memCounters, (uint)Marshal.SizeOf(typeof(PROCESS_MEMORY_COUNTERS))))
-                    {
-                        //Console.WriteLine($"无法获取内存信息 {processName} (PID: {process.Id})");
-                    }
-
-                    // 如果所有检查都通过，则添加到列表
-                    lock (processList)
-                    {
-                        processList.Add(new ProcessInfo
-                            {
-                                Name = processName,
-                                Pid = process.Id,
-                                Level = process.BasePriority,
-                                CreateTime = crTime,
-                                Cpu = process.TotalProcessorTime.TotalSeconds / Environment.ProcessorCount / Environment.TickCount,
-                                Ram = memCounters.WorkingSetSize / 1024.0 / 1024.0,
-                                User = process.MachineName,
-                                Path = processPath.ToString()
-                            });
-                    }
-
-                    CloseHandle(processHandle);
-
-                }
-                catch (Exception ex)
-                {
-                    //Console.WriteLine($"Error accessing process {process.ProcessName}: {ex.Message}");
-                }
+                fprocessList = processList;
             });
 
-            fprocessList = processList;
-        });
-
-        SortProcessList();
-        StateHasChanged();
+            SortProcessList();
+            StateHasChanged();
+        }
+        catch { }
     }
 
     private async void Search(KeyboardEventArgs e)

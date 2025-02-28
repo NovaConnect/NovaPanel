@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using NovaPanel.Shared;
 using System;
 using System.Data.SQLite;
 using System.Security.Cryptography;
@@ -39,9 +40,10 @@ namespace NovaPanel.Model
     public class ScheduleTask
     {
         public string Name { get; set; }
+        public bool Enable { get; set; } = false;
         public string Type { get; set; } = "CS";// PS, CMD, CS, PY, JS
         public string Code { get; set; }
-        public int Minute { get; set; }
+        public double Minute { get; set; }
         public string Tag { get; set; }
     }
 
@@ -107,6 +109,7 @@ namespace NovaPanel.Model
                 string createScheduleTasksTable = @"
                     CREATE TABLE IF NOT EXISTS ScheduleTasks (
                         Name TEXT,
+                        Enable BOOLEAN,
                         Type TEXT,
                         Code TEXT,
                         Minute INTEGER,
@@ -327,6 +330,7 @@ namespace NovaPanel.Model
                             tasks.Add(new ScheduleTask
                             {
                                 Name = reader["Name"].ToString(),
+                                Enable = bool.Parse(reader["Enable"].ToString()),
                                 Type = reader["Type"].ToString(),
                                 Code = reader["Code"].ToString(),
                                 Minute = Convert.ToInt32(reader["Minute"]),
@@ -339,18 +343,19 @@ namespace NovaPanel.Model
             return tasks;
         }
 
-        public static bool AddScheduleTask(string name, string type, string code, int minute,string tag)
+        public static bool AddScheduleTask(string name, string type, string code,double minute,string tag)
         {
             using (var connection = new SQLiteConnection(_connectionString))
             {
                 connection.Open();
                 string insertTaskQuery = @"
-                    INSERT INTO ScheduleTasks (Name, Type, Code, Minute, Tag)
-                    VALUES (@Name, @Type, @Code, @Minute, @Tag)";
+                    INSERT INTO ScheduleTasks (Name, Enable, Type, Code, Minute, Tag)
+                    VALUES (@Name, @Enable, @Type, @Code, @Minute, @Tag)";
 
                 using (var cmd = new SQLiteCommand(insertTaskQuery, connection))
                 {
                     cmd.Parameters.AddWithValue("@Name", name);
+                    cmd.Parameters.AddWithValue("@Enable", true);
                     cmd.Parameters.AddWithValue("@Type", type);
                     cmd.Parameters.AddWithValue("@Code", code);
                     cmd.Parameters.AddWithValue("@Minute", minute);

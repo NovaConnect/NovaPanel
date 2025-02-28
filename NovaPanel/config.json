@@ -4,5 +4,13 @@
   ],
   "main": "main",
   "title": "NovaPanel",
-  "theme": "dark"
+  "theme": "dark",
+  "env": {
+    //X64系统NET安装默认位置
+    "net": "C:\\Program Files\\dotnet",
+    "py": "C:\\Users\\Administrator\\AppData\\Local\\Programs\\Python\\Launcher\\",
+    "nodejs": "E:\\Development\\node",
+    "php": "",
+    "gcc": "D:\\MinGW\\bin"
+  }
 }

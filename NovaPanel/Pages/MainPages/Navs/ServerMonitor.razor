@@ -29,7 +29,7 @@
             CpuUsageA = ApplicationRuntimes.State.CpuUsageA;
             RamTotalA = ApplicationRuntimes.State.RamTotalA;
             RamUsagePercentage = (RamUsageA / RamTotalA).ToString("00.00%");
-            
+
             await Task.Delay(1000);
             StateHasChanged();
         }

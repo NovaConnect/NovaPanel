@@ -1,0 +1,78 @@
+<html class="ms-fontsize-medium textSpacingOff ms-fonttype-sitka ms-theme-sepia" dir="auto">
+<body>
+	<div id="__reading__mode__content_container">
+		<div id="contentContainer" class="contentBody ms-column-type-narrow" role="main">
+			<div class="header_container" id="__reading__mode__header__container">
+				<div id="header_content_id" class="header_content">
+					<h1 class="__reading__mode__extracted__title c0011" id="mainContentTitle">windows下 gcc 下载及使用指南</h1>
+					<h4 class="__reading__mode__extracted__subtitle c0010" id="subtitle"></h4>
+					<div class="__reading__mode__bylineentries c0010">
+						<div class="__reading__mode__extracted__bylineentry c0010" id="author"></div>
+						<div class="__reading__mode__extracted__bylineentry c0010" id="metaData"> <a id="source"></a> <span id="metaDivider" class="c0010">|</span> <span class="__reading__mode__extracted__date" id="publishdate"></span> </div>
+					</div>
+				</div>
+			</div>
+			<div class="__reading__mode__mainbody" id="__reading__mode__mainbody__id">
+				<div class="__reading__mode__extracted__article__body" id="mainContainer">
+					<div>
+						<div class="blog-content-box">
+							<div class="ai-abstract-box">
+								<div class="ai-abstract">
+									<div class="abstract-content"> 本文介绍了安装和配置GCC编译器的过程。通过详细步骤，包括下载MinGW，包管理器安装，环境变量配置，以及验证安装成功的方法。 </div>
+								</div>
+							</div>
+							<article class="baidu_pl">
+								<div class="article_content clearfix" id="article_content">
+									<div class="markdown_views prism-atom-one-dark" id="content_views">
+										<p></p>
+										<p></p>
+										<h2>安装步骤</h2>
+										<h3><a id="1__10"></a>1、首先安装包 下载</h3>
+										<p>
+											<a href="https://onboardcloud.dl.sourceforge.net/project/mingw/Installer/mingw-get-setup.exe?viasf=1" class="btn-white inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;amp;_svg]:pointer-events-none [&amp;amp;_svg]:size-4 [&amp;amp;_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
+											   >
+											   点击下载
+											 </a>
+										</p>
+										<h3><a name="t4"></a><a id="2_15"></a>2、下载成功进行安装：</h3>
+										
+										<h3><a name="t5"></a><a id="3_19"></a>3、打开安装程序，无脑下一步</h3>
+										<h3><a name="t6"></a><a id="4_23"></a>4、包管理器安装完成后将弹出选择安装界面：</h3>
+										<ul>
+											<li>找到<code>mingw32-gcc-g++</code>，右键点击<code>Mark for Installation</code>。</li>
+										</ul>
+										<h3><a name="t7"></a><a id="5_28"></a>5、进行下载安装</h3>
+										<ul>
+											<li>
+												<p>然后点击左上角的<code>Installation</code>菜单中的<code>Apply changes</code>选项，然后管理器将开始在线安装或更新被选中的组件。</p>
+											</li>
+											<li>
+												<p>耐心等待程序的安装，<mark>这时可以泡杯 <code>Java</code> 咖啡等待</mark></p>
+											</li>
+											<li>
+												<p>安装完成后关闭包管理器，如果由于某种原因安装未能成功，在退出程序前程序将给予提示，选择<code>review changes</code>选项重新安装即可。</p>
+											</li>
+										</ul>
+										<h3><a name="t8"></a><a id="6_36"></a>6、配置环境变量</h3>
+										<ul>
+											<li>打开控制面板 -&gt; 系统 -&gt; 高级系统设置 -&gt; 高级 -&gt; 环境变量。</li>
+										</ul>
+										<p> 找到列表中的PATH选项，选中后点击编辑，在末尾添加</p>
+										<pre class="set-code-show prettyprint"><code class="prism language-bash has-numbering">C:<span class="token punctuation">\</span>MinGW<span class="token punctuation">\</span>bin </code></pre>
+										<p>
+											<font color="red"><strong>注意：</strong></font>这是默认的，具体路径需根据你安装 <code>MinGW</code> 的<code>bin</code> 文件位置
+										</p>
+									</div>
+								</div>
+							</article>
+						</div>
+					</div>
+				</div>
+				<div id="__reading__mode__content_end_mark_container_id"> <span id="content_end_mark_icon_id" style="display: block;"></span> </div>
+				<div id="pages_pending_container_id" class="pages_pending_container_class"> <progress class="progress_pages_pending c0010"> </progress></div>
+				<div class="__reading__mode__copyright c0010" id="copyright"></div>
+			</div>
+		</div>
+	</div>
+</body>
+</html>

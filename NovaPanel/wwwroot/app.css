@@ -209,6 +209,15 @@ div {
 .filename{
     color:#121212;
 }
+
+.bg-color {
+    background-color: #fff;
+}
+
+.theme-toggle .bg-color {
+    background-color: #000;
+}
+
     .filename:hover {
         color: #000;
     }
@@ -286,4 +295,14 @@ div {
 .btn-select {
     background: #333333;
     color: #fff;
+}
+
+.Error{
+    color:red;
+}
+.Dangerous{
+    color:orangered;
+}
+.Warning {
+    color: orange;
 }

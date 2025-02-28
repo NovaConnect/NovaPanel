@@ -2,6 +2,24 @@
 
 namespace NovaPanel.Model
 {
+    public class Environments
+    {
+        [JsonProperty("net")]
+        public string Net { get; set; }
+
+        [JsonProperty("php")]
+        public string PHP { get; set; }
+
+        [JsonProperty("gcc")]
+        public string GCC { get; set; }
+
+        [JsonProperty("py")]
+        public string Python { get; set; }
+
+        [JsonProperty("node")]
+        public string NodeJS { get; set; }
+    }
+
     public class ConfigModel
     {
         [JsonProperty("domain")]
@@ -15,6 +33,9 @@ namespace NovaPanel.Model
 
         [JsonProperty("theme")]
         public string Theme { get; set; }
+
+        [JsonProperty("env")]
+        public Environments EnvironmentPath { get; set; }
 
     }
 }

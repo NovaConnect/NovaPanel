@@ -7,7 +7,8 @@ namespace NovaPanel.Model
     {
         Normal,
         Warning,
-        Dangerous
+        Dangerous,
+        Error
     }
 
     public class LogEntry
